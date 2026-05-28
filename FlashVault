@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>FlashVault · Personal Cloud Drive</title>
+    <!-- Font Awesome 6 (free icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts: Inter modern sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f0f5fe 0%, #e9eff8 100%);
+            min-height: 100vh;
+            padding: 24px 20px;
+        }
+
+        /* glassmorphic container */
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* card style */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(2px);
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            transition: all 0.2s ease;
+        }
+
+        .auth-panel, .drive-panel {
+            padding: 2rem 2rem 2.5rem;
+        }
+
+        h1, h2 {
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        .brand i {
+            font-size: 2.4rem;
+            color: #1e4a8a;
+        }
+        .brand h1 {
+            font-size: 1.85rem;
+            background: linear-gradient(135deg, #0f2b3d, #1e4a8a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .input-group {
+            margin-bottom: 1.3rem;
+        }
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: #1f2937;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 1.5rem;
+            border: 1.5px solid #e2e8f0;
+            background: white;
+            font-size: 0.95rem;
+            transition: 0.2s;
+            outline: none;
+        }
+        .input-group input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+        }
+
+        .btn {
+            border: none;
+            background: #1e293b;
+            color: white;
+            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+        .btn-primary {
+            background: #2563eb;
+            box-shadow: 0 2px 6px rgba(37,99,235,0.3);
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #cbd5e1;
+            color: #1f2937;
+        }
+        .btn-outline:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+        .btn-danger {
+            background: #ef4444;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 0.8rem;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.8rem;
+        }
+
+        .file-card {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+            transition: 0.2s;
+            border: 1px solid #edf2f7;
+            display: flex;
+            flex-direction: column;
+        }
+        .file-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 30px -12px rgba(0, 0, 0, 0.12);
+        }
+
+        .file-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            color: #3b82f6;
+        }
+        .file-name {
+            font-weight: 600;
+            font-size: 1rem;
+            word-break: break-word;
+            margin: 8px 0 4px;
+        }
+        .file-meta {
+            font-size: 0.7rem;
+            color: #5b6e8c;
+            margin-bottom: 12px;
+        }
+        .file-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .badge-type {
+            background: #eef2ff;
+            color: #1e40af;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            display: inline-block;
+            width: fit-content;
+        }
+
+        .empty-zone {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #5b6e8c;
+        }
+        .upload-area {
+            border: 2px dashed #cbd5e1;
+            background: #fafcff;
+            border-radius: 1.8rem;
+            padding: 1.2rem 1.8rem;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .upload-area:hover {
+            background: #f1f5fe;
+            border-color: #3b82f6;
+        }
+        .toast-msg {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1f2937;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: 500;
+            z-index: 1000;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+            backdrop-filter: blur(8px);
+            animation: fadeInUp 0.2s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        .switch-link {
+            color: #2563eb;
+            cursor: pointer;
+            font-weight: 500;
+            text-align: center;
+            margin-top: 20px;
+            display: inline-block;
+        }
+        hr {
+            margin: 20px 0;
+        }
+        .user-welcome {
+            background: #eef2ff;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            color: #4b5563;
+        }
+        @media (max-width: 640px) {
+            .auth-panel, .drive-panel { padding: 1.5rem; }
+            .file-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- LOGIN / SIGNUP SECTION (shown by default) -->
+    <div id="authSection" class="glass-card auth-panel" style="max-width: 520px; margin: 0 auto;">
+        <div class="brand">
+            <i class="fas fa-database"></i>
+            <h1>FlashVault</h1>
+        </div>
+        <p style="margin-bottom: 24px; color: #2c3e66;">🔐 Your portable flash drive in the cloud — keep movies, documents, videos privately.</p>
+        
+        <!-- Login Form -->
+        <div id="loginFormArea">
+            <div class="input-group">
+                <label><i class="fas fa-user"></i> Username</label>
+                <input type="text" id="loginUsername" placeholder="e.g., jordan">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-lock"></i> Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••">
+            </div>
+            <button id="doLoginBtn" class="btn btn-primary" style="width:100%"><i class="fas fa-sign-in-alt"></i> Login to Drive</button>
+            <div style="text-align: center; margin-top: 18px;">
+                <span class="switch-link" id="showSignupBtn">✨ No account? Create one →</span>
+            </div>
+        </div>
+
+        <!-- Signup Form (hidden initially) -->
+        <div id="signupFormArea" style="display: none;">
+            <div class="input-group">
+                <label><i class="fas fa-user-plus"></i> Username</label>
+                <input type="text" id="signupUsername" placeholder="pick a username">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-lock"></i> Password</label>
+                <input type="password" id="signupPassword" placeholder="strong password">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-check-circle"></i> Confirm password</label>
+                <input type="password" id="signupConfirm" placeholder="confirm password">
+            </div>
+            <button id="doSignupBtn" class="btn btn-primary" style="width:100%"><i class="fas fa-folder-open"></i> Create & Login</button>
+            <div style="text-align: center; margin-top: 18px;">
+                <span class="switch-link" id="showLoginBtn">← Back to Login</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN DRIVE PANEL (file manager - hidden initially) -->
+    <div id="driveSection" style="display: none;">
+        <div class="glass-card drive-panel">
+            <div class="flex-between">
+                <div class="brand" style="margin-bottom: 0;">
+                    <i class="fas fa-usb-drive"></i>
+                    <h1>FlashVault</h1>
+                </div>
+                <div class="flex-between" style="gap: 16px;">
+                    <span id="currentUserSpan" class="user-welcome"><i class="fas fa-user-circle"></i> <span id="activeUsername">user</span></span>
+                    <button id="logoutButton" class="btn btn-outline btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </div>
+            <hr>
+            <!-- Upload zone + file controls -->
+            <div class="upload-area" id="uploadZone">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 1.8rem; color:#2563eb;"></i>
+                <p style="margin: 8px 0 4px;"><strong>Drag & drop or click to add</strong> — movies, videos, any files</p>
+                <p style="font-size: 0.75rem; color:#5b6e8c;">All files stored privately in your account (IndexedDB)</p>
+                <input type="file" id="fileInput" multiple style="display: none;">
+            </div>
+            <div class="flex-between" style="margin-top: 24px;">
+                <h3><i class="fas fa-hdd"></i> My Files  <span id="fileCountBadge" style="font-size:0.8rem;">(0)</span></h3>
+                <button id="refreshFilesBtn" class="btn btn-outline btn-sm"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+
+            <!-- File grid container -->
+            <div id="fileListContainer" class="file-grid">
+                <div class="empty-zone"><i class="fas fa-folder-open"></i> <br> No files yet. Upload movies, documents, or videos!</div>
+            </div>
+        </div>
+        <footer><i class="fas fa-shield-alt"></i> Private & encrypted offline storage · Your data never leaves this browser</footer>
+    </div>
+</div>
+
+<script>
+    (function(){
+        // ---------- INDEXEDDB SCHEMA ----------
+        const DB_NAME = 'FlashVaultDB';
+        const DB_VERSION = 3;
+        let db = null;
+
+        // Helper: open Database
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                if (db && db.name === DB_NAME) return resolve(db);
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                request.onupgradeneeded = (event) => {
+                    const dbUp = event.target.result;
+                    if (!dbUp.objectStoreNames.contains('users')) {
+                        const userStore = dbUp.createObjectStore('users', { keyPath: 'username' });
+                        userStore.createIndex('username', 'username', { unique: true });
+                    }
+                    if (!dbUp.objectStoreNames.contains('files')) {
+                        const fileStore = dbUp.createObjectStore('files', { keyPath: 'id', autoIncrement: true });
+                        fileStore.createIndex('username', 'username', { unique: false });
+                        fileStore.createIndex('uploadDate', 'uploadDate');
+                    }
+                };
+            });
+        }
+
+        // ---------- Crypto utils (SHA-256 with salt) ----------
+        async function hashPassword(password, salt) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password + salt);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function createUser(username, password) {
+            const salt = crypto.randomUUID().slice(0, 16);
+            const hashed = await hashPassword(password, salt);
+            const userRecord = { username, passwordHash: hashed, salt };
+            const dbInst = await openDB();
+            const tx = dbInst.transaction(['users'], 'readwrite');
+            const store = tx.objectStore('users');
+            return new Promise((resolve, reject) => {
+                const req = store.add(userRecord);
+                req.onsuccess = () => resolve(true);
+                req.onerror = (e) => reject(e.target.error);
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+
+        async function verifyUser(username, password) {
+            const dbInst = await openDB();
+            const tx = dbInst.transaction(['users'], 'readonly');
+            const store = tx.objectStore('users');
+            return new Promise((resolve, reject) => {
+                const req = store.get(username);
+                req.onsuccess = async () => {
+                    const user = req.result;
+                    if (!user) resolve(false);
+                    else {
+                        const hashedInput = await hashPassword(password, user.salt);
+                        resolve(hashedInput === user.passwordHash);
+                    }
+                };
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        // ---------- FILE OPERATIONS (storing blobs) ----------
+        async function addFileToUser(username, fileObj) {
+            const dbInst = await openDB();
+            const tx = dbInst.transaction(['files'], 'readwrite');
+            const store = tx.objectStore('files');
+            const fileData = await fileObjToBlob(fileObj); // preserve full blob
+            const record = {
+                username: username,
+                fileName: fileObj.name,
+                fileType: fileObj.type || 'application/octet-stream',
+                fileSize: fileObj.size,
+                uploadDate: Date.now(),
+                fileBlob: fileData,
+                originalName: fileObj.name
+            };
+            return new Promise((resolve, reject) => {
+                const req = store.add(record);
+                req.onsuccess = () => resolve(true);
+                req.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        async function fileObjToBlob(file) {
+            return file; // File inherits Blob, perfect for IndexedDB
+        }
+
+        async function getUserFiles(username) {
+            const dbInst = await openDB();
+            const tx = dbInst.transaction(['files'], 'readonly');
+            const store = tx.objectStore('files');
+            const index = store.index('username');
+            return new Promise((resolve, reject) => {
+                const range = IDBKeyRange.only(username);
+                const request = index.openCursor(range);
+                const files = [];
+                request.onsuccess = (e) => {
+                    const cursor = e.target.result;
+                    if (cursor) {
+                        files.push(cursor.value);
+                        cursor.continue();
+                    } else {
+                        // sort by upload date descending
+                        files.sort((a,b) => b.uploadDate - a.uploadDate);
+                        resolve(files);
+                    }
+                };
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function deleteFileById(fileId) {
+            const dbInst = await openDB();
+            const tx = dbInst.transaction(['files'], 'readwrite');
+            const store = tx.objectStore('files');
+            return new Promise((resolve, reject) => {
+                const req = store.delete(fileId);
+                req.onsuccess = () => resolve(true);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        // Download file (copy to computer)
+        function copyFileToComputer(fileRecord) {
+            const blob = fileRecord.fileBlob;
+            if (!blob) {
+                showToast("❌ File data missing", true);
+                return;
+            }
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileRecord.fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+            showToast(`📁 Copied: ${fileRecord.fileName} to computer`, false);
+        }
+
+        // UI State management
+        let currentLoggedUser = null;
+        let fileListCache = [];
+
+        // DOM elements
+        const authSection = document.getElementById('authSection');
+        const driveSection = document.getElementById('driveSection');
+        const loginFormArea = document.getElementById('loginFormArea');
+        const signupFormArea = document.getElementById('signupFormArea');
+        const showSignupBtn = document.getElementById('showSignupBtn');
+        const showLoginBtn = document.getElementById('showLoginBtn');
+        const doLoginBtn = document.getElementById('doLoginBtn');
+        const doSignupBtn = document.getElementById('doSignupBtn');
+        const logoutBtn = document.getElementById('logoutButton');
+        const activeUsernameSpan = document.getElementById('activeUsername');
+        const fileInput = document.getElementById('fileInput');
+        const uploadZone = document.getElementById('uploadZone');
+        const fileListContainer = document.getElementById('fileListContainer');
+        const refreshBtn = document.getElementById('refreshFilesBtn');
+        const fileCountBadge = document.getElementById('fileCountBadge');
+
+        function showToast(msg, isError = false) {
+            const toastDiv = document.createElement('div');
+            toastDiv.className = 'toast-msg';
+            toastDiv.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${msg}`;
+            if (isError) toastDiv.style.background = '#b91c1c';
+            document.body.appendChild(toastDiv);
+            setTimeout(() => { toastDiv.remove(); }, 2800);
+        }
+
+        async function renderFileList() {
+            if (!currentLoggedUser) return;
+            fileListContainer.innerHTML = '';
+            const files = await getUserFiles(currentLoggedUser);
+            fileListCache = files;
+            fileCountBadge.innerText = `(${files.length})`;
+            if (files.length === 0) {
+                fileListContainer.innerHTML = `<div class="empty-zone"><i class="fas fa-cloud-upload-alt"></i><br/>✨ Upload movies, videos, or documents — they stay forever in your private drive.</div>`;
+                return;
+            }
+            for (const file of files) {
+                const card = document.createElement('div');
+                card.className = 'file-card';
+                const fileExt = file.fileName.split('.').pop().toUpperCase() || 'FILE';
+                let iconHtml = `<i class="fas fa-file-video" style="font-size: 2.3rem; color:#3b82f6;"></i>`;
+                if (file.fileType.includes('video')) iconHtml = `<i class="fas fa-film" style="font-size: 2.3rem; color:#dc2626;"></i>`;
+                else if (file.fileType.includes('image')) iconHtml = `<i class="fas fa-image" style="font-size: 2.3rem; color:#16a34a;"></i>`;
+                else if (file.fileType.includes('audio')) iconHtml = `<i class="fas fa-music" style="font-size: 2.3rem; color:#a855f7;"></i>`;
+                else iconHtml = `<i class="fas fa-file-alt" style="font-size: 2.3rem; color:#3b82f6;"></i>`;
+                const sizeMB = (file.fileSize / (1024 * 1024)).toFixed(2);
+                const sizeLabel = file.fileSize > 1024*1024 ? `${sizeMB} MB` : `${(file.fileSize/1024).toFixed(1)} KB`;
+                card.innerHTML = `
+                    <div class="file-icon">${iconHtml}</div>
+                    <div class="file-name" title="${escapeHtml(file.fileName)}">${escapeHtml(truncate(file.fileName, 32))}</div>
+                    <div class="file-meta">${sizeLabel} • ${fileExt}</div>
+                    <div class="badge-type">${file.fileType.split('/')[0] || 'file'}</div>
+                    <div class="file-actions">
+                        <button class="btn btn-primary btn-sm copy-file" data-id="${file.id}" style="flex:1"><i class="fas fa-copy"></i> Copy to PC</button>
+                        <button class="btn btn-danger btn-sm delete-file" data-id="${file.id}" style="flex:0.5"><i class="fas fa-trash-alt"></i> Remove</button>
+                    </div>
+                `;
+                fileListContainer.appendChild(card);
+            }
+            // attach events for dynamic buttons
+            document.querySelectorAll('.copy-file').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const id = Number(btn.getAttribute('data-id'));
+                    const targetFile = fileListCache.find(f => f.id === id);
+                    if (targetFile) copyFileToComputer(targetFile);
+                    else showToast("File not found", true);
+                });
+            });
+            document.querySelectorAll('.delete-file').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const id = Number(btn.getAttribute('data-id'));
+                    if (confirm("❌ Remove this file permanently?")) {
+                        try {
+                            await deleteFileById(id);
+                            showToast(`🗑️ Removed successfully`, false);
+                            await renderFileList();
+                        } catch(err) { showToast("Delete failed", true); }
+                    }
+                });
+            });
+        }
+
+        function truncate(str, len) {
+            if(str.length <= len) return str;
+            return str.slice(0, len-2) + '..';
+        }
+        function escapeHtml(str) {
+            return str.replace(/[&<>]/g, function(m) {
+                if(m === '&') return '&amp;';
+                if(m === '<') return '&lt;';
+                if(m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        async function handleUpload(filesArray) {
+            if (!currentLoggedUser) { showToast("Please login first", true); return; }
+            if (!filesArray || filesArray.length === 0) return;
+            let successCount = 0;
+            for (let file of filesArray) {
+                if (file.size > 0) {
+                    try {
+                        await addFileToUser(currentLoggedUser, file);
+                        successCount++;
+                    } catch(e) { console.error(e); showToast(`Failed: ${file.name}`, true); }
+                }
+            }
+            if (successCount > 0) {
+                showToast(`✅ ${successCount} file(s) uploaded!`, false);
+                await renderFileList();
+            } else if (filesArray.length > 0) showToast("Upload error (size or quota)", true);
+        }
+
+        async function loginUser(username, password) {
+            try {
+                const isValid = await verifyUser(username, password);
+                if (isValid) {
+                    currentLoggedUser = username;
+                    activeUsernameSpan.innerText = username;
+                    authSection.style.display = 'none';
+                    driveSection.style.display = 'block';
+                    await renderFileList();
+                    showToast(`Welcome back, ${username} 🚀`, false);
+                } else {
+                    showToast("Invalid username or password", true);
+                }
+            } catch(e) { showToast("Login error", true); }
+        }
+
+        async function signupUser(username, password, confirm) {
+            if (!username.trim() || !password) { showToast("Username & password required", true); return false; }
+            if (password !== confirm) { showToast("Passwords do not match", true); return false; }
+            if (password.length < 4) { showToast("Password at least 4 chars", true); return false; }
+            try {
+                const dbInst = await openDB();
+                const tx = dbInst.transaction(['users'], 'readonly');
+                const store = tx.objectStore('users');
+                const existsReq = store.get(username);
+                const exists = await new Promise((resolve) => {
+                    existsReq.onsuccess = () => resolve(!!existsReq.result);
+                    existsReq.onerror = () => resolve(false);
+                });
+                if (exists) { showToast("Username already taken", true); return false; }
+                await createUser(username, password);
+                // auto-login after signup
+                await loginUser(username, password);
+                return true;
+            } catch(e) { showToast("Signup DB error", true); return false; }
+        }
+
+        function logout() {
+            currentLoggedUser = null;
+            driveSection.style.display = 'none';
+            authSection.style.display = 'block';
+            // reset forms
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('signupUsername').value = '';
+            document.getElementById('signupPassword').value = '';
+            document.getElementById('signupConfirm').value = '';
+            loginFormArea.style.display = 'block';
+            signupFormArea.style.display = 'none';
+            showToast("Logged out securely", false);
+        }
+
+        // UI toggle signup / login
+        showSignupBtn.addEventListener('click', () => {
+            loginFormArea.style.display = 'none';
+            signupFormArea.style.display = 'block';
+        });
+        showLoginBtn.addEventListener('click', () => {
+            signupFormArea.style.display = 'none';
+            loginFormArea.style.display = 'block';
+        });
+
+        doLoginBtn.addEventListener('click', () => {
+            const uname = document.getElementById('loginUsername').value.trim();
+            const pwd = document.getElementById('loginPassword').value;
+            if (!uname || !pwd) { showToast("Enter username/password", true); return; }
+            loginUser(uname, pwd);
+        });
+        doSignupBtn.addEventListener('click', () => {
+            const uname = document.getElementById('signupUsername').value.trim();
+            const pwd = document.getElementById('signupPassword').value;
+            const confirm = document.getElementById('signupConfirm').value;
+            signupUser(uname, pwd, confirm);
+        });
+        logoutBtn.addEventListener('click', logout);
+
+        // file upload triggers
+        uploadZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleUpload(Array.from(e.target.files));
+            fileInput.value = '';
+        });
+        uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.style.background = "#e6f0ff"; });
+        uploadZone.addEventListener('dragleave', () => { uploadZone.style.background = "#fafcff"; });
+        uploadZone.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            uploadZone.style.background = "#fafcff";
+            const items = e.dataTransfer.files;
+            if (items.length) handleUpload(Array.from(items));
+        });
+        refreshBtn.addEventListener('click', async () => { if(currentLoggedUser) await renderFileList(); else showToast("Not logged in", true); });
+        
+        // init DB and make sure everything ready
+        openDB().then(() => {
+            // if any previously logged session? no, explicit login needed, good.
+            console.log("FlashVault DB ready");
+        }).catch(e => console.error("IndexedDB error", e));
+    })();
+</script>
+</body>
+</html>
